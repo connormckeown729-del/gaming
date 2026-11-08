@@ -12,6 +12,17 @@ async function load() {
       c.append(el('t', g.title + (g.metric ? ' · ' + g.metric : '')),
                el('v', g.value == null ? '—' : g.value.toLocaleString()),
                el('n', g.name || ''), el('s', g.sub || ''));
+      if (g.details && g.details.length) {
+        const dl = document.createElement('dl');
+        g.details.forEach(([k, v]) => { const r = document.createElement('div'), a = document.createElement('dt'), b = document.createElement('dd'); a.textContent = k; b.textContent = v; r.append(a, b); dl.append(r); });
+        c.append(dl);
+      }
+      if (g.top && g.top.length) {
+        c.append(el('tt', g.top_title || ''));
+        const ol = document.createElement('ol');
+        g.top.forEach(x => { const li = document.createElement('li'); li.textContent = x; ol.append(li); });
+        c.append(ol);
+      }
       if (g.stale) c.append(el('stale', 'Couldn’t refresh this one. Showing the last known value.'));
       return c;
     }));
