@@ -32,13 +32,13 @@ def rows(*pairs):
 def pct(a, b):
     return f"{100 * a / (a + b):.1f}%" if isinstance(a, int) and isinstance(b, int) and a + b else None
 
-def hours_row(key, est=None):
+def hours_row(key, est=None, lab="estimate"):
     """Time played: self-reported number from config.json if set, otherwise an estimate if one is given."""
     m = (cfg.get("play_hours") or {}).get(key)
     if isinstance(m, (int, float)) and m > 0:
         return [("Time played (self-reported)", f"{m:,.0f} h")]
     if est:
-        return [("Time played (estimate)", f"~{est:,.0f} h")]
+        return [(f"Time played ({lab})", f"~{est:,.0f} h")]
     return []
 
 def ilevel(c):
@@ -61,9 +61,11 @@ def brawl_table(bs):
 def brawl(t, token):
     d = get(f"https://bsproxy.royaleapi.dev/v1/players/{tag(t)}", token)
     bs = sorted(d.get("brawlers", []), key=lambda b: -b.get("trophies", 0))
+    vic = sum(d.get(k) or 0 for k in ("3vs3Victories", "soloVictories", "duoVictories"))
+    est = vic * 2 * 2.5 / 60 if vic else None
     out = {"title": "Brawl Stars", "metric": "Trophies", "value": d["trophies"], "name": d.get("name", ""),
            "sub": f"Best: {d['highestTrophies']:,}" if "highestTrophies" in d else "",
-           "details": rows(*hours_row("brawl"), ("Level", d.get("expLevel")), ("Prestige", d.get("totalPrestigeLevel")),
+           "details": rows(*hours_row("brawl", est, "rough estimate"), ("Level", d.get("expLevel")), ("Prestige", d.get("totalPrestigeLevel")),
                            ("3v3 wins", d.get("3vs3Victories")), ("Solo wins", d.get("soloVictories")),
                            ("Duo wins", d.get("duoVictories")), ("Brawlers unlocked", len(bs) or None),
                            ("Club", dig(d, "club", "name"))),
