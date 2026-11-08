@@ -26,3 +26,10 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}
 th,td{text-align:left;padding:6px 10px;border-top:1px solid color-mix(in srgb,var(--mut) 25%,transparent);white-space:nowrap}
 th{color:var(--mut);cursor:pointer;font-weight:600}
 td:nth-child(n+6){white-space:normal;min-width:130px}
+#cards{display:block}
+.tabs{display:flex;gap:10px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px}
+.tabbtn{flex:1 0 auto;min-width:130px;text-align:left;background:var(--card);color:var(--ink);border:2px solid transparent;border-radius:12px;padding:12px 16px;font:inherit;cursor:pointer;display:flex;flex-direction:column}
+.tabbtn[aria-selected="true"]{border-color:var(--acc)}
+.tn{color:var(--mut);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
+.tv{font-weight:700;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.tabbtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
