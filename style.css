@@ -5,16 +5,24 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-app
 main{max-width:900px;margin:0 auto;padding:48px 20px}
 h1{margin:0;font-size:2rem;letter-spacing:-.02em}
 .upd{color:var(--mut);margin:6px 0 28px;font-size:.9rem}
-#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;align-items:start}
+#cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
 .card{background:var(--card);border-radius:14px;padding:22px}
 .t{color:var(--mut);font-size:.85rem;text-transform:uppercase;letter-spacing:.08em}
 .v{font-size:clamp(2.4rem,8vw,3.2rem);font-weight:800;color:var(--acc);line-height:1.1;margin:8px 0 4px;font-variant-numeric:tabular-nums}
 .n{font-weight:600}
 .s{color:var(--mut);font-size:.9rem}
 .stale{color:var(--mut);font-size:.8rem;margin-top:8px}
+#cards{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start}
 dl{margin:16px 0 0;padding:0}
 dl div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid color-mix(in srgb,var(--mut) 25%,transparent);font-size:.92rem}
 dt{color:var(--mut)}
 dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
 .tt{margin-top:18px;color:var(--mut);font-size:.8rem;text-transform:uppercase;letter-spacing:.08em}
 ol{margin:6px 0 0;padding-left:20px;font-size:.92rem}
+details{margin-top:18px}
+summary{cursor:pointer;color:var(--acc);font-weight:600}
+.scroll{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{text-align:left;padding:6px 10px;border-top:1px solid color-mix(in srgb,var(--mut) 25%,transparent);white-space:nowrap}
+th{color:var(--mut);cursor:pointer;font-weight:600}
+td:nth-child(n+6){white-space:normal;min-width:130px}

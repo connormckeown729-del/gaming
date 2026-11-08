@@ -30,10 +30,35 @@ def rows(*pairs):
 def pct(a, b):
     return f"{100 * a / (a + b):.1f}%" if isinstance(a, int) and isinstance(b, int) and a + b else None
 
+
+RARITY = {16: "Common", 14: "Rare", 11: "Epic", 8: "Legendary", 6: "Champion"}
+
+def ilevel(c):
+    """The API reports old per-rarity levels; in-game level = level + (16 - maxLevel)."""
+    lv, mx = c.get("level"), c.get("maxLevel")
+    return lv + (16 - mx) if isinstance(lv, int) and isinstance(mx, int) else lv
+
+def names(lst):
+    return ", ".join(str(x.get("name", "")).title() for x in (lst or [])) or "-"
+
+def brawl_table(bs):
+    rows = [[str(b.get("name", "")).title(), b.get("trophies", 0), b.get("highestTrophies", 0), b.get("rank"), b.get("power"),
+             names(b.get("gadgets")), names(b.get("starPowers")), names(b.get("gears")), names(b.get("hyperCharges"))] for b in bs]
+    return {"title": f"All brawlers ({len(rows)})",
+            "columns": ["Brawler", "Trophies", "Best", "Rank", "Power", "Gadgets", "Star Powers", "Gears", "Hypercharges"], "rows": rows}
+
+def royale_table(d):
+    rows = []
+    for c in d.get("cards", []):
+        rar = c.get("rarity") or RARITY.get(c.get("maxLevel"), "?")
+        evo = f"{c['evolutionLevel']}/{c['maxEvolutionLevel']}" if c.get("maxEvolutionLevel") else "-"
+        rows.append([c.get("name"), ilevel(c), str(rar).title(), c.get("count"), c.get("elixirCost"), evo])
+    return {"title": f"All cards ({len(rows)})", "columns": ["Card", "Level", "Rarity", "Copies", "Elixir", "Evolution"], "rows": rows}
+
 def brawl(t, token):
     d = get(f"https://bsproxy.royaleapi.dev/v1/players/{tag(t)}", token)
     bs = sorted(d.get("brawlers", []), key=lambda b: -b.get("trophies", 0))
-    return {"title": "Brawl Stars", "metric": "Trophies", "value": d["trophies"], "name": d.get("name", ""),
+    out = {"title": "Brawl Stars", "metric": "Trophies", "value": d["trophies"], "name": d.get("name", ""),
             "sub": f"Best: {d['highestTrophies']:,}" if "highestTrophies" in d else "",
             "details": rows(("Level", d.get("expLevel")), ("Prestige", d.get("totalPrestigeLevel")),
                             ("3v3 wins", d.get("3vs3Victories")), ("Solo wins", d.get("soloVictories")),
@@ -41,12 +66,14 @@ def brawl(t, token):
                             ("Club", dig(d, "club", "name"))),
             "top_title": "Top brawlers",
             "top": [f"{str(b.get('name', '')).title()} · {b.get('trophies', 0):,} trophies · rank {b.get('rank', '?')} · power {b.get('power', '?')}" for b in bs[:5]]}
+    out["table"] = brawl_table(bs)
+    return out
 
 def royale(t, token):
     d = get(f"https://proxy.royaleapi.dev/v1/players/{tag(t)}", token)
     pol = d.get("currentPathOfLegendSeasonResult") or {}
     best = d.get("bestPathOfLegendSeasonResult") or {}
-    return {"title": "Clash Royale", "metric": "Trophies", "value": d["trophies"], "name": d.get("name", ""),
+    out = {"title": "Clash Royale", "metric": "Trophies", "value": d["trophies"], "name": d.get("name", ""),
             "sub": f"Best: {d['bestTrophies']:,}" if "bestTrophies" in d else "",
             "details": rows(("Level", d.get("expLevel")), ("Wins", d.get("wins")), ("Losses", d.get("losses")),
                             ("Win rate", pct(d.get("wins"), d.get("losses"))), ("Three-crown wins", d.get("threeCrownWins")),
@@ -54,7 +81,9 @@ def royale(t, token):
                             ("Path of Legend league", pol.get("leagueNumber")), ("Path of Legend best league", best.get("leagueNumber")),
                             ("Donations", d.get("totalDonations")), ("Clan", dig(d, "clan", "name"))),
             "top_title": "Current deck",
-            "top": [f"{c.get('name')} · level {c.get('level')}" for c in d.get("currentDeck", [])]}
+            "top": [f"{c.get('name')} · level {ilevel(c)}" for c in d.get("currentDeck", [])]}
+    out["table"] = royale_table(d)
+    return out
 
 def clans(t, token):
     d = get(f"https://cocproxy.royaleapi.dev/v1/players/{tag(t)}", token)
